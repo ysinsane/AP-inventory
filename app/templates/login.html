@@ -1,0 +1,21 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Blade Store{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="shortcut icon" href="{{ url_for('static', filename = 'icon/favicon.ico') }}"
+type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename = 'icon/favicon.ico') }}"
+type="image/x-icon">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Hello, {{ name }}!</h1>
+    </div>
+</div>
+{{wtf.quick_form(form)}}
+{% endblock %}

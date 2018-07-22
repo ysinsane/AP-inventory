@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+{{wtf.quick_form(form,form_type="inline")}}
+<table class="table table-hover">
+        <thead>
+          <tr>
+            <th>PN</th>
+            <th>Spec</th>
+            <th>stock</th>
+            <th>warn_stock</th>
+          </tr>
+        </thead>
+        <tbody>
+        {%if items %}
+        {%for item in items%}
+        {%if item.stock<item.warn_stock%}
+          <tr class="danger">
+            <td><a href="{{url_for('.item',pn=item.PN)}}">{{item.PN}}</a></td>
+            <td>{{item.Spec}}</td>
+            <td>{{item.stock}}</td>
+            <td>{{item.warn_stock}}</td>
+            <td>{{item.warn_stock-item.stock}}</td>
+          </tr>
+        {%else%}
+          <tr class="success">
+            <td><a href="{{url_for('.item',pn=item.PN)}}">{{item.PN}}</a></td>
+            <td>{{item.Spec}}</td>
+            <td>{{item.stock}}</td>
+            <td>{{item.warn_stock}}</td>
+            <td>{{item.warn_stock-item.stock}}</td>
+          </tr>
+        {%endif%}
+        {%endfor%}
+        {%endif%}
+        </tbody>
+      </table>
+
+
+{% endblock %}
