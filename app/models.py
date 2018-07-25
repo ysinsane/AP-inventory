@@ -91,10 +91,10 @@ class Record(db.Model):
     __tablename__="records"
     id = db.Column(db.Integer,primary_key=True)
     qty = db.Column(db.Integer)
-    time = db.Column(db.Time)
+    time = db.Column(db.DateTime,index=true,default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     customer_id = db.Column(db.Integer,db.ForeignKey('customers.id'))
-    items = db.Column(db.Integer, db.ForeignKey('items.id'))
+    item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
 
 class Customer(db.Model):
     __tablename__="customers"

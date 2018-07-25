@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import flash, redirect, render_template, session, url_for
+from flask import flash, redirect, render_template, url_for,current_app
 
 
 from .forms import Login, SearchForm, TakeForm
@@ -45,5 +45,15 @@ def item(pn):
 
 @main.route('/taked', methods=['GET', 'POST'])
 def taked():
-    
-    return "hello"
+    form=SearchForm()
+    page = request.args.get('page',1,type=int)
+    pagination = Record.query.order_by(Record.time.desc()).paginate(page,per_page=
+    current_app.config['FLASKY_POSTS_PER_PAGE'],error_out=False)
+    records = pagination.items
+    if form.validate_on_submit():
+        pagination = Record.query.filter_by(or_(Record.user.username==
+        form.username.data,Record.item.spec.like("%"+form.spec.data+"%"))).paginate(
+        page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],error_out=False
+        )
+    return render_template('record.html', form=form, records=records,
+    pagination=pagination)

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+{{wtf.quick_form(form,form_type="inline")}}
+<table class="table table-hover">
+        <thead>
+          <tr>
+            <th>PN/th>
+            <th>Spec</th>
+            <th>qty</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+        {%if items %}
+        {%for record in records%}
+          <tr>
+            <td><a href="{{url_for('.item',pn=item.PN)}}">{{item.PN}}</a></td>
+            <td>{{record.item.pn}}</td>
+            <td>{{record.item.spec}}</td>
+            <td>{{item.qty}}</td>
+            <td>{{item.Time}}</td>
+          </tr>
+        {%endfor%}
+        {%endif%}
+        </tbody>
+      </table>
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination, '.taked') }}
+    </div>
+{% endblock %}
