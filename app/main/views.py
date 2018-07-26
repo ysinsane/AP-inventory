@@ -27,10 +27,15 @@ def login():
 @main.route('/', methods=['GET', 'POST'])
 def index():
     form = SearchForm()
-    items=None
+    page = request.args.get('page',1,type=int)
+    pagination = Record.query.order_by((Item.warn_stock-Item.stock).desc()).paginate(page,per_page=
+    current_app.config['FLASKY_POSTS_PER_PAGE'],error_out=False)
+    items=pagination.items
     if form.validate_on_submit():
-        items=Item.query.order_by((Item.warn_stock-Item.stock).desc()).all()
-    return render_template('index.html',form=form,items=items)
+        keyword=form.keyword.data
+        items=Item.query.filter_by(or_(Item.spec.like("%"+keyword+"%"),Item.pn.like("%"+keyword+"%")))
+        .order_by((Item.warn_stock-Item.stock).desc()).all()
+    return render_template('index.html',pagination=pagination,form=form,items=items)
 
 @main.route('/item/<pn>', methods=['GET', 'POST'])
 def item(pn):
@@ -52,8 +57,14 @@ def taked():
     records = pagination.items
     if form.validate_on_submit():
         pagination = Record.query.filter_by(or_(Record.user.username==
-        form.username.data,Record.item.spec.like("%"+form.spec.data+"%"))).paginate(
+        form.username.data,Record.item.spec.like("%"+form.spec.data+"%"))).order_by(Record.time.desc()).paginate(
         page,per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],error_out=False
         )
     return render_template('record.html', form=form, records=records,
     pagination=pagination)
+
+@main.route('/lend', methods=['GET', 'POST'])
+def take():
+    form=SearchForm()
+
+    

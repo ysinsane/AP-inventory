@@ -1,0 +1,5 @@
+{
+    "python.linting.pylintEnabled": false,
+    "python.pythonPath": "C:\\Program Files (x86)\\python3\\python.exe",
+    "python.formatting.provider": "yapf"
+}
