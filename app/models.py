@@ -1,8 +1,10 @@
+#_*_coding:utf-8_*_
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from sqlalchemy.exc import IntegrityError
 from random import seed
 import forgery_py,random
+from datetime import datetime
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
@@ -48,7 +50,7 @@ class User(db.Model):
         for i in range(count):
             u = User(email=forgery_py.internet.email_address(),
                     username=forgery_py.internet.user_name(True),
-                    password=forgery_py.lorem_ipsum.word(),
+                    password=forgery_py.lorem_ipsum.word(),)
             db.session.add(u)
             try:
                 db.session.commit()
@@ -78,10 +80,10 @@ class Item(db.Model):
             item = User(pn=forgery_py.lorem_ipsum.word(),
                     spec=forgery_py.internet.user_name(True),
                     size=forgery_py.lorem_ipsum.word(),
-                    stock=random.randint(2~9)
-                    in_store=bool(random.randint(0,1))
-                    warn_stock=random.randint(3,7)
-                    shelf_life=forgery_py.date.date(True)
+                    stock=random.randint(2,9),
+                    in_store=bool(random.randint(0,1)),
+                    warn_stock=random.randint(3,7),
+                    shelf_life=forgery_py.date.date(True))
             db.session.add(item)
             try:
                 db.session.commit()
@@ -91,7 +93,7 @@ class Record(db.Model):
     __tablename__="records"
     id = db.Column(db.Integer,primary_key=True)
     qty = db.Column(db.Integer)
-    time = db.Column(db.DateTime,index=true,default=datetime.utcnow)
+    time = db.Column(db.DateTime,index=True,default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     customer_id = db.Column(db.Integer,db.ForeignKey('customers.id'))
     item_id = db.Column(db.Integer, db.ForeignKey('items.id'))

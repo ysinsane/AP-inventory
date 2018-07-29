@@ -33,8 +33,7 @@ def index():
     items=pagination.items
     if form.validate_on_submit():
         keyword=form.keyword.data
-        items=Item.query.filter_by(or_(Item.spec.like("%"+keyword+"%"),Item.pn.like("%"+keyword+"%")))
-        .order_by((Item.warn_stock-Item.stock).desc()).all()
+        items=Item.query.filter_by(or_(Item.spec.like("%"+keyword+"%"),Item.pn.like("%"+keyword+"%"))).order_by((Item.warn_stock-Item.stock).desc()).all()
     return render_template('index.html',pagination=pagination,form=form,items=items)
 
 @main.route('/item/<pn>', methods=['GET', 'POST'])

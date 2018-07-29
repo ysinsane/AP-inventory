@@ -9,8 +9,7 @@ Flask-Moment==0.2.0
 flask-nav==0.6
 Flask-Script==0.6.6
 Flask-SQLAlchemy==1.0
-Flask-WTF==0.14.2
-ForgeryPy==0.1
+Flask-WTF==0.9.4
 itsdangerous==0.23
 Jinja2==2.7.1
 Mako==0.9.1
