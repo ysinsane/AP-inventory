@@ -1,7 +1,5 @@
 {% extends "bootstrap/base.html" %}
-
 {% block title %}Blade Store{% endblock %}
-
 {% block head %}
 {{ super() }}
 <link rel="shortcut icon" href="{{ url_for('static', filename = 'icon/favicon.ico') }}"
@@ -11,6 +9,7 @@ type="image/x-icon">
 {% endblock %}
 
 {% block navbar %}
+{{ super() }}
 <div class="navbar navbar-inverse" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">

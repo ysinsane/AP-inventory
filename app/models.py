@@ -19,7 +19,7 @@ class Role(db.Model):
         user=Role(name='user')
         admin=Role(name='admin')
         db.session.add(user)
-        db.seesion.add(admin)
+        db.session.add(admin)
         db.session.commit()
 
 class User(db.Model):
@@ -77,7 +77,7 @@ class Item(db.Model):
     def generate_fake(count=100):
         seed()
         for i in range(count):
-            item = User(pn=forgery_py.lorem_ipsum.word(),
+            item = Item(pn=forgery_py.lorem_ipsum.word(),
                     spec=forgery_py.internet.user_name(True),
                     size=forgery_py.lorem_ipsum.word(),
                     stock=random.randint(2,9),

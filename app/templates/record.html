@@ -16,7 +16,7 @@
         {%if items %}
         {%for record in records%}
           <tr>
-            <td><a href="{{url_for('.item',pn=item.PN)}}">{{item.PN}}</a></td>
+            <td><a href="{{url_for('.item',pn=item.pn)}}">{{item.pn}}</a></td>
             <td>{{record.item.pn}}</td>
             <td>{{record.item.spec}}</td>
             <td>{{item.qty}}</td>
