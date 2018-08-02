@@ -20,21 +20,15 @@
         {%for item in items%}
         {%if item.stock<item.warn_stock%}
           <tr class="danger">
-            <td><a href="{{url_for('.item',pn=item.pn)}}">{{item.pn}}</a></td>
-            <td>{{item.spec}}</td>
-            <td>{{item.stock}}</td>
-            <td>{{item.warn_stock}}</td>
-            <td>{{item.stock-item.warn_stock}}</td>
-          </tr>
         {%else%}
           <tr class="success">
+        {%endif%}
             <td><a href="{{url_for('.item',pn=item.pn)}}">{{item.pn}}</a></td>
             <td>{{item.spec}}</td>
             <td>{{item.stock}}</td>
             <td>{{item.warn_stock}}</td>
             <td>{{item.stock-item.warn_stock}}</td>
           </tr>
-        {%endif%}
         {%endfor%}
         {%endif%}
         </tbody>

@@ -5,6 +5,9 @@ from sqlalchemy.exc import IntegrityError
 from random import seed
 import forgery_py,random
 from datetime import datetime
+from flask_login import UserMixin
+from . import login_manager
+
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
@@ -22,7 +25,7 @@ class Role(db.Model):
         db.session.add(admin)
         db.session.commit()
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64),unique=True, index=True)
@@ -56,6 +59,11 @@ class User(db.Model):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         if self.role is None:
@@ -93,7 +101,7 @@ class Record(db.Model):
     __tablename__="records"
     id = db.Column(db.Integer,primary_key=True)
     qty = db.Column(db.Integer)
-    time = db.Column(db.DateTime,index=True,default=datetime.utcnow)
+    time = db.Column(db.DateTime(),index=True,default=datetime.utcnow())
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     customer_id = db.Column(db.Integer,db.ForeignKey('customers.id'))
     item_id = db.Column(db.Integer, db.ForeignKey('items.id'))

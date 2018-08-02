@@ -1,17 +1,10 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}Blade Store{% endblock %}
 
-{% block head %}
-{{ super() }}
-<link rel="shortcut icon" href="{{ url_for('static', filename = 'icon/favicon.ico') }}"
-type="image/x-icon">
-<link rel="icon" href="{{ url_for('static', filename = 'icon/favicon.ico') }}"
-type="image/x-icon">
-{% endblock %}
-
 {% block content %}
+{{super()}}
 <div class="container">
     <div class="page-header">
         <h1>Hello, {{ name }}!</h1>

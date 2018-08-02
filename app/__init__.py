@@ -6,10 +6,14 @@ from flask_moment import Moment
 from flask_nav.elements import Navbar, View
 from flask_sqlalchemy import SQLAlchemy
 from flask_nav import Nav
+from flask_login import LoginManager
 
 from config import config
 from flask_bootstrap import Bootstrap
 
+login_manager = LoginManager()
+login_manager.session_protection = 'strong'
+login_manager.login_view = 'main.login'
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
@@ -31,6 +35,7 @@ def create_app(config_name):
     moment.init_app(app)
     db.init_app(app)
     nav.init_app(app)
+    login_manager.init_app(app)
 # 附加路由和自定义的错误页面
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
