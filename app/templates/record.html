@@ -2,15 +2,21 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% import '_macros.html' as macros %}
 {% block content %}
-{{wtf.quick_form(form,form_type="inline")}}
+<form class="form" method="POST">
+    {{form.keyword(class_="form-control")}}
+    {{form.submit(class_="btn btn-default",type="submit")}}
+</form>
 <table class="table table-hover">
         <thead>
           <tr>
             <th>PN</th>
             <th>Spec</th>
+            <th>Size</th>
             <th>qty</th>
             <th>time</th>
             <th>By_who</th>
+            <th>借出PIC</th>
+            <th>是否归还</th>
           </tr>
         </thead>
         <tbody>
@@ -19,15 +25,23 @@
           <tr>
             <td><a href="{{url_for('.item',pn=record.pn)}}">{{record.item.pn}}</a></td>
             <td>{{record.item.spec}}</td>
+            <td>{{record.item.size}}</td>
             <td>{{record.qty}}</td>
             <td>{{ moment(record.time).format('LLL') }}</td>
             <td>{{record.user.username}}</td>
+            <td>{%if record.lend_pic%}{{record.lend_pic}}{%else%}非借用{%endif%}</td>
+            <td>{%if record.lend_pic%}
+                  {%if record.returned%}已还{%else%}未还{% endif %}
+                {%else%}非借用
+                {%endif%}
+            </td>
+            
           </tr>
         {%endfor%}
         {%endif%}
         </tbody>
       </table>
     <div class="pagination">
-        {{ macros.pagination_widget(pagination, '.taked') }}
+        {{ macros.pagination_widget(pagination, '.record') }}
     </div>
 {% endblock %}

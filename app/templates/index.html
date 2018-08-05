@@ -4,7 +4,11 @@
 
 {% block content %}
 {{ super() }}
-{{wtf.quick_form(form,form_type="inline")}}
+<form class="form" method="POST">
+  {{form.keyword(class_="form-control")}}
+  {{form.submit(class_="btn btn-default",type="submit")}}
+</form>
+
 <table class="table table-hover">
         <thead>
           <tr>

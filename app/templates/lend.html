@@ -10,6 +10,8 @@
             <th>Size</th>
             <th>Stock</th>
             <th>QTY</th>
+            <th>借出PIC</th>
+            <th>客户名</th>
           </tr>
         </thead>
         <tbody>
@@ -19,8 +21,12 @@
             <td>{{item.spec}}</td>
             <td>{{item.size}}</td>
             <td>{{item.stock}}</td>
-            <td>{{wtf.quick_form(form,form_type="inline")}}</td>
-            <td><a class="btn btn-warning" href="{{url_for('.lend',pn=item.pn)}}">借出</a></td>
+            <form method="POST">
+                <td>{{form.qty(class_="form-control")}}</td>
+                <td>{{form.lend_pic(class_="form-control")}}</td>
+                <td>{{form.customer_name(class_="form-control")}}</td>
+                <td>{{form.submit_take(class_="btn btn-default",type="submit")}}</td>
+            </form>
           </tr>
         {%endif%}
         

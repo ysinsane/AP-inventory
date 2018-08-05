@@ -80,7 +80,6 @@ class Item(db.Model):
     warn_stock = db.Column(db.Integer)
     shelf_life = db.Column(db.Date)
     records = db.relationship('Record', backref='item',lazy='dynamic')
-    lents = db.relationship('Lent', backref='item',lazy='dynamic')
     @staticmethod
     def generate_fake(count=100):
         seed()
@@ -105,6 +104,9 @@ class Record(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     customer_id = db.Column(db.Integer,db.ForeignKey('customers.id'))
     item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
+    lend_pic = db.Column(db.String)
+    returned = db.Column(db.Boolean,default=True)
+
 
 class Customer(db.Model):
     __tablename__="customers"
@@ -112,12 +114,4 @@ class Customer(db.Model):
     code = db.Column(db.String(64),index=True)
     short_name = db.Column(db.String(64),index=True)
     records = db.relationship('Record', backref='customer', lazy='dynamic')
-    records = db.relationship('Lent', backref='customer', lazy='dynamic')
-
-class Lent(db.Model):
-    __tablename__="lents"
-    id = db.Column(db.Integer,primary_key=True)
-    returned = db.Column(db.Boolean,default=False)
-    pic = db.Column(db.String(64))
-    items = db.Column(db.Integer, db.ForeignKey('items.id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+ 
