@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import '_macros.html' as macros %}
+
+{% block content %}
+{{ super() }}
+{{wtf.quick_form(form,form_type="horizontal",horizontal_columns=('lg',5,3))}}
+{% endblock %}

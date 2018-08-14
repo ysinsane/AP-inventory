@@ -32,7 +32,6 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
-    records = db.relationship('Record', backref='user', lazy='dynamic')
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')
@@ -47,27 +46,18 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
     
-    @staticmethod
-    def generate_fake(count=100):
-        seed()
-        for i in range(count):
-            u = User(email=forgery_py.internet.email_address(),
-                    username=forgery_py.internet.user_name(True),
-                    password=forgery_py.lorem_ipsum.word(),)
-            db.session.add(u)
-            try:
-                db.session.commit()
-            except IntegrityError:
-                db.session.rollback()
-
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        if self.role is None:
+        if self.role_id is None:
             self.role = Role.query.first()
+        else:
+            self.role= Role.query.filter_by(id=self.role_id).first()
+        db.session.add(self)
+        db.session.commit()
     
 class Item(db.Model):
     __tablename__="items"
@@ -77,9 +67,8 @@ class Item(db.Model):
     size = db.Column(db.String(64),index=True)
     stock = db.Column(db.Integer)
     in_store = db.Column(db.Boolean,default=False)
-    warn_stock = db.Column(db.Integer)
+    warn_stock = db.Column(db.Integer,nullable=False,default=9999)
     shelf_life = db.Column(db.Date)
-    records = db.relationship('Record', backref='item',lazy='dynamic')
     @staticmethod
     def generate_fake(count=100):
         seed()
@@ -96,22 +85,25 @@ class Item(db.Model):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
+    def __str__(self):
+        return '<class Item> PN:{0} Spec:{1} Size:{2} Stock:{3} warn_stock:{4}'.format(self.pn,
+        self.spec,self.size,self.stock,self.warn_stock)
+    __repr__=__str__
+    def __init__(self, **kwargs):
+        super(Item, self).__init__(**kwargs)
+        if self.warn_stock is None:
+            self.warn_stock = 9999
+
 class Record(db.Model):
     __tablename__="records"
     id = db.Column(db.Integer,primary_key=True)
     qty = db.Column(db.Integer)
-    time = db.Column(db.DateTime(),index=True,default=datetime.utcnow())
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    customer_id = db.Column(db.Integer,db.ForeignKey('customers.id'))
-    item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
+    pn = db.Column(db.String(64),index=True)
+    spec = db.Column(db.String(64),index=True)
+    size = db.Column(db.String(64),index=True)
+    time = db.Column(db.DateTime(),unique=True,default=datetime.utcnow())
+    ap_pic = db.Column(db.String)
+    customer = db.Column(db.String)
     lend_pic = db.Column(db.String)
-    returned = db.Column(db.Boolean,default=True)
-
-
-class Customer(db.Model):
-    __tablename__="customers"
-    id = db.Column(db.Integer,primary_key=True)
-    code = db.Column(db.String(64),index=True)
-    short_name = db.Column(db.String(64),index=True)
-    records = db.relationship('Record', backref='customer', lazy='dynamic')
+    returned = db.Column(db.Boolean,default=False)
  

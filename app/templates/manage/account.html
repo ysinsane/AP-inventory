@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import '_macros.html' as macros %}
+
+{% block content %}
+{{ super() }}
+<table class="table table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>用户名</th>
+        <td>角色</td>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {%if users %}
+    {%for user in users%}
+      <tr> 
+        <td>{{user.id}}</td>
+        <td>{{user.username}}</td>
+        <td>{{user.role}}</td>
+        <td><a class="btn btn-warning" href="{{url_for('.delete_user',id=user.id)}}">删除</a></td>
+      </tr>
+    {%endfor%}
+    {%endif%}
+    </tbody>
+  </table>
+{% endblock %}

@@ -4,10 +4,7 @@
 
 {% block content %}
 {{ super() }}
-<form class="form" method="POST">
-  {{form.keyword(class_="form-control")}}
-  {{form.submit(class_="btn btn-default",type="submit")}}
-</form>
+{{wtf.quick_form(form,form_type="horizontal",horizontal_columns=('lg',5,3))}}
 
 <table class="table table-hover">
         <thead>
@@ -25,11 +22,7 @@
         {%if items %}
         {%for item in items%}
           <tr> 
-            {%if item.stock>0%} 
-            <td><a href="{{url_for('.item',pn=item.pn)}}">{{item.pn}}</a></td>
-            {%else%}
             <td>{{item.pn}}</td>
-            {%endif%}
             <td>{{item.spec}}</td>
             <td>{{item.size}}</td>
             <td {%if item.stock<item.warn_stock and item.in_store%}
@@ -43,7 +36,4 @@
         {%endif%}
         </tbody>
       </table>
-      <div class="pagination">
-        {{ macros.pagination_widget(pagination, '.index') }}
-    </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-#_*_coding:utf-8_*_
+# _*_coding:utf-8_*_
 
 import os
 
@@ -6,17 +6,19 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell
 
 from app import create_app, db
-from app.models import User,Item,Role, Record,Customer
+from app.models import User, Item, Role, Record
 
-app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+app = create_app(os.getenv("FLASK_CONFIG") or "default")
 manager = Manager(app)
-migrate = Migrate(app, db)#migrate感觉可以放在工厂函数里去
+migrate = Migrate(app, db)  # migrate感觉可以放在工厂函数里去
+
 
 def make_shell_context():
-    return dict(db=db, User=User, Item=Item, Role=Role, Record=Record,Customer=Customer)
+    return dict(db=db, User=User, Item=Item, Role=Role, Record=Record)
+
 
 manager.add_command("shell", Shell(make_context=make_shell_context))
-manager.add_command('db', MigrateCommand)
+manager.add_command("db", MigrateCommand)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     manager.run()

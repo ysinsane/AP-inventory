@@ -12,9 +12,10 @@
             <th>PN</th>
             <th>Spec</th>
             <th>Size</th>
-            <th>qty</th>
+            <th>QTY</th>
             <th>time</th>
-            <th>By_who</th>
+            <th>AP PIC</th>
+            <th>客户</th>
             <th>借出PIC</th>
             <th>是否归还</th>
           </tr>
@@ -23,18 +24,20 @@
         {%if records %}
         {%for record in records%}
           <tr>
-            <td><a href="{{url_for('.item',pn=record.pn)}}">{{record.item.pn}}</a></td>
-            <td>{{record.item.spec}}</td>
-            <td>{{record.item.size}}</td>
+            <td>{{record.pn}}</td>
+            <td>{{record.spec}}</td>
+            <td>{{record.size}}</td>
             <td>{{record.qty}}</td>
             <td>{{ moment(record.time).format('LLL') }}</td>
-            <td>{{record.user.username}}</td>
+            <td>{{record.ap_pic}}</td>
+            <td>{{record.customer}}{%if not record.customer %}——{%endif%}</td>
             <td>{%if record.lend_pic%}{{record.lend_pic}}{%else%}非借用{%endif%}</td>
             <td>{%if record.lend_pic%}
                   {%if record.returned%}已还{%else%}未还{% endif %}
                 {%else%}非借用
                 {%endif%}
-            </td>
+            </td> 
+            <td>{%if not record.returned and record.lend_pic%}<a href="{{url_for('.Return',id=record.id)}}">归还</a>{%endif%}</td>
             
           </tr>
         {%endfor%}

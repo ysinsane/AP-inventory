@@ -44,28 +44,34 @@ type="image/x-icon">
         
         <ul class="nav navbar-nav navbar-right">
             {% if current_user.is_authenticated %}
-            <li><a href="{{ url_for('main.logout') }}">Sign Out</a></li>
+            <li><a href="{{ url_for('main.logout') }}"><strong>Sign Out</strong></a></li>
             {% else %}
-            <li><a href="{{ url_for('main.login') }}">Sign In</a></li>
+            <li><a href="{{ url_for('main.login') }}"><strong>Sign In</strong></a></li>
             {% endif %}
         </ul>
 
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
+                <li><a href="/record">Record</a></li>
                 <li><a href="/">Return</a></li>
-                <li><a href="/">Lend</a></li>
+                {%if current_user.role_id==2%}
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown">Manage
                         <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">长期备库品</a></li>
+                        <li><a href="/manage/mark">长期备库</a></li>
+                        <li><a href="/manage/index">补充数量</a></li>
+                        <li><a href="/manage/add">添加品种</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">导入/导出</a></li>
+                        <li><a href="/manage/_import">导入</a></li>
+                        <li><a href="/manage/export">导出</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">帐号管理</a></li>
-                    </ul>
+                        <li><a href="/manage/add_account">添加账号</a></li>
+                        <li><a href="/manage/account">管理账号</a></li>
+                    </ul>   
                 </li>
+                {%endif%}
             </ul>
         </div>
     </div>

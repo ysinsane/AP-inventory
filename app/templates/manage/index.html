@@ -25,11 +25,7 @@
         {%if items %}
         {%for item in items%}
           <tr> 
-            {%if item.stock>0%} 
-            <td><a href="{{url_for('.item',pn=item.pn)}}">{{item.pn}}</a></td>
-            {%else%}
-            <td>{{item.pn}}</td>
-            {%endif%}
+            <td><a href="{{url_for('.buy',pn=item.pn)}}">{{item.pn}}</a></td>
             <td>{{item.spec}}</td>
             <td>{{item.size}}</td>
             <td {%if item.stock<item.warn_stock and item.in_store%}
@@ -38,6 +34,7 @@
             <td>{%if item.in_store%}{{item.warn_stock}}{%else%}-{%endif%}</td>
             <td>{% if item.in_store %}是{% else %}否{% endif %}</td>
             <td>{%if item.shelf_life%}{{moment(item.shelf_life).format('LL')}}{%else%}未录入{%endif%}</td>
+            <td><a class="btn btn-warning" href="{{url_for('.delete_item',id=item.id)}}">删除</a></td>
           </tr>
         {%endfor%}
         {%endif%}

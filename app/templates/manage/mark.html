@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import '_macros.html' as macros %}
+
+{% block content %}
+{{ super() }}
+<form method="POST">
+    <input type="text" class="form-control" name="keyword" placeholder="请输入搜索关键字" 
+    style="margin:0px 10px 0px 15px;display:inline;text-align:center; width:20%">
+    <button  style="display: inline" type="submit" class="btn btn-default" name='search'>搜索</button>
+    <div align="right" >
+        <span class="help-block" style="display: inline">选好了是否切换常备和报警限后，点击‘修改’按钮</span>
+        <button type="submit"  class="btn btn-warning" name='modify'>修改</button>
+        <a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</a>
+    </div>
+<table class="table table-hover">
+        <thead>
+          <tr>
+            <th>PN</th>
+            <th>Spec</th>
+            <th>Size</th>
+            <th>Stock</th>
+            <th>过期时间</th>
+            <th>是否常备</th>
+            <th>报警限</th>
+            <th>是否切换常备</th>
+            <th>修改报警限</th>
+          </tr>
+        </thead>
+        <tbody>
+        {%if items %}
+            {%for item in items%}
+                {%if item.stock<item.warn_stock%}
+                    <tr class="danger">
+                {%else%}
+                    <tr class="success">
+                {%endif%}
+                        <td><a href="{{url_for('main.item',pn=item.pn)}}">{{item.pn}}</a></td>
+                        <td>{{item.spec}}</td>
+                        <td>{{item.size}}</td>
+                        <td>{{item.stock}}</td>
+                        <td>{{moment(item.shelf_life).format('LL')}}</td>
+                        <td>{% if item.in_store %}是{% else %}否{% endif %}</td>
+                        <td>{{item.warn_stock}}</td>
+                        <td>
+                            <input type="checkbox" class="checkbox" name={{item.pn}}-check>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" name={{item.pn}}-text style="width: 60px">
+                        </td>
+                    </tr>   
+            {%endfor%}
+        {%endif%}
+        </tbody>
+      </table>
+    </form>  
+      <div class="pagination">
+        {{ macros.pagination_widget(pagination, '.mark',kw=args) }}
+    </div>
+{% endblock %}

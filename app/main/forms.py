@@ -1,14 +1,12 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField,IntegerField, BooleanField
-from wtforms.validators import Required
+from wtforms.validators import Required,NumberRange
 
 class Login(FlaskForm):
-    username = StringField('Username', validators=[Required()],
-    render_kw={"placeholder":"中文",
-    "style":"margin:0px 10px 0px 15px;display:inline;color:blue; text-align:center; width:20%"})
+    username = StringField('Username', validators=[Required()])
     password = PasswordField('Password',validators=[Required()])
     remember_me = BooleanField('Keep me logged in')
-    submit = SubmitField('Submit')
+    submit = SubmitField('Login')
 
 class SearchForm(FlaskForm):
     keyword = StringField('',render_kw={"placeholder":"搜索关键字(PN或Spec)",
@@ -16,14 +14,16 @@ class SearchForm(FlaskForm):
     submit = SubmitField('Submit')
 
 class TakeForm(FlaskForm):
-    qty = IntegerField('Keyword',render_kw={"placeholder":123})
-    submit_take = SubmitField('take')
+    qty = IntegerField("取用数量",
+    validators=[NumberRange(min=1,max=100,message='Only accept number 1~100')])
+    customer = StringField('Customer name',validators=[Required()])
+    submit = SubmitField('拿走')
 
 class LendForm(FlaskForm):
     lent_pic=StringField('pic', validators=[Required()])
     qty = IntegerField('Keyword',render_kw={"placeholder":"数量","style": \
     "display:inline"})
-    customer_name = StringField('customer_name', validators=[Required()],
+    customer = StringField('customer', validators=[Required()],
     render_kw={"placeholder":"客户名","style":"margin:0px 10px 0px 10px; \
     display:inline;text-align:center"})
     lend_pic = StringField('lend_pic', validators=[Required()], \
