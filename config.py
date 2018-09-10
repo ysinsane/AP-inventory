@@ -42,7 +42,7 @@ class ProductionConfig(Config):
         Config.init_app(app)
         # 把错误通过电子邮件发送给管理员
         import logging
-        from logging.handlers import SMTPHandler,StreamHandler
+        from logging.handlers import SMTPHandler
         
         credentials = None
         secure = None
@@ -61,7 +61,7 @@ class ProductionConfig(Config):
             mail_handler.setLevel(logging.DEBUG)
             mail_handler.setFormatter(formatter)
             app.logger.addHandler(mail_handler)
-            file_handler = StreamHandler()
+            file_handler = logging.StreamHandler()
             file_handler.setLevel(logging.WARNING)
             app.logger.addHandler(file_handler)
 

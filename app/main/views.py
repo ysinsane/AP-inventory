@@ -32,24 +32,28 @@ def login():
     return render_template("login.html", name=name, form=form)
 
 
-@main.route("/sign_in", methods=["GET", "POST"])
+""" @main.route("/sign_in", methods=["GET", "POST"])
 def sign_in():
     form = SignIn()
     if form.validate_on_submit() and form.email.data.endswith('@discosha.com'):
         userinfo=[form.username.data,
         form.password.data,
         form.email.data]
-        s = Serializer(current_app.config['SECRET_KEY'], expires_in = 60)
+        if User.query.filter_by(email=form.email.data).first() is not None:
+            flash('这个邮箱已经被注册过了')
+            return render_template('sign_in.html',form=form)
+        s = Serializer(current_app.config['SECRET_KEY'], expires_in = 3600)
         session['serializer']=True
         token = s.dumps(userinfo)
         msg = Message(subject='确认账户',
               recipients=["eason_yan@discosha.com"])
-        msg.body = url_for('.confirm',token=token,_external=True)
+        msg.body = '亲爱的管理员，有用户正在注册账户。用户名:{0} 邮箱地址:{1}。确认注册请点击链接'.format(userinfo[0],userinfo[1]) \
+        +url_for('.confirm',token=token,_external=True)
         mail.send(msg)
         return '申请提交成功，我们给您发送了一封邮件来确认账户，请检查自己邮箱完成账号注册，有效期1小时。'
     return render_template('sign_in.html',form=form)
- 
-@main.route("/confirm/<token>", methods=["GET", "POST"])
+  """
+""" @main.route("/confirm/<token>", methods=["GET", "POST"])
 def confirm(token):
     if session['serializer']:
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -71,7 +75,7 @@ def confirm(token):
         return redirect(url_for('.login'))
     flash('请勿重复提交，先注册再从邮件确认！')    
     return redirect(url_for('.sign_in'))
-
+ """
 @main.route("/logout")
 @login_required
 def logout():
