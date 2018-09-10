@@ -108,6 +108,8 @@ def _import():
     if request.method == "POST":
         if request.files["file"]:
             file_name = os.path.join(basedir, "temp", request.files["file"].filename)
+            if not os.path.exists(os.path.dirname(file_name)):
+                os.mkdir(os.path.dirname(file_name))
             request.files["file"].save(file_name)
             Item.query.delete()
             with open(file_name, "r", encoding="utf-8") as f:
