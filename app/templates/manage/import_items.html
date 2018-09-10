@@ -4,7 +4,13 @@
 
 {% block content %}
 {{ super() }}
-<strong>请谨慎操作，导入库存会覆盖掉以前的库存表！</strong>
+<strong>请谨慎操作，导入库存会覆盖掉以前的库存表！</strong><br>
+<strong>*csv的一行数据的例子BGCA0757,WA400NB50,75*75*1T,10,TRUE,5,2020-03-04，依次是PN、SPEC、Size、数量、是否常备(大写的TRUE表示是)、报警限、过期时间，
+其中PN，SPEC，Size，数量是必须的。
+<br>
+*csv文件要保存为utf-8格式
+<br>*如果PN有重复的，那么导入的时候仅仅会读取第一次出现该PN的行的信息，后面再遇到相同PN的行，只会把数量加上去
+</strong>
 <form method="POST" enctype="multipart/form-data">
     <div class="form-group">
       <label for="inputfile">文件输入</label>
@@ -13,7 +19,7 @@
     </div>
     <button type="submit" class="btn btn-default">提交</button>
 </form>
-<table class="table table-hover">
+<table class="table table-hover">	
   <caption>导入错误记录</caption>
   <thead>
     <tr>

@@ -101,9 +101,10 @@ class Record(db.Model):
     pn = db.Column(db.String(64),index=True)
     spec = db.Column(db.String(64),index=True)
     size = db.Column(db.String(64),index=True)
-    time = db.Column(db.DateTime(),unique=True,default=datetime.utcnow())
+    time = db.Column(db.DateTime(),default=datetime.utcnow())
     ap_pic = db.Column(db.String)
     customer = db.Column(db.String)
     lend_pic = db.Column(db.String)
+    days = db.Column(db.Integer)
     returned = db.Column(db.Boolean,default=False)
  

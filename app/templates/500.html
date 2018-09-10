@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>服务器内部错误!</h3>
+<a>{{error|replace('\n', '<br>')|safe}}</a>
+{% endblock %}

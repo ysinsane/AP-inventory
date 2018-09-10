@@ -106,9 +106,7 @@ def _import():
     if current_user.role_id != 2:
         abort(403)
     if request.method == "POST":
-        print("post")
         if request.files["file"]:
-            print("get file")
             file_name = os.path.join(basedir, "temp", request.files["file"].filename)
             request.files["file"].save(file_name)
             Item.query.delete()
@@ -124,24 +122,28 @@ def _import():
                             and row[2] != ""
                             and row[3] != ""
                         ):
-                            warn_stock = 9999
-                            shelf_life = None
-                            in_store = False
-                            if len(row) > 4:
-                                in_store = row[4] == "TRUE"
-                            if len(row) > 5:
-                                warn_stock = int(row[5])
-                            if len(row) > 6:
-                                shelf_life = datetime.strptime(row[6], "%Y-%m-%d")
-                            item = Item(
-                                pn=row[0],
-                                spec=row[1],
-                                size=row[2],
-                                stock=int(row[3]),
-                                in_store=in_store,
-                                warn_stock=warn_stock,
-                                shelf_life=shelf_life,
-                            )
+                            item=Item.query.filter_by(pn=row[0]).first()
+                            if item:
+                                item.stock+=int(row[3])
+                            else:
+                                warn_stock = 9999
+                                shelf_life = None
+                                in_store = False
+                                if len(row) > 4:
+                                    in_store = row[4] == "TRUE"
+                                if len(row) > 5 and row[5] !='':
+                                    warn_stock = int(row[5])
+                                if len(row) > 6:
+                                    shelf_life = datetime.strptime(row[6], "%Y-%m-%d")
+                                item = Item(
+                                    pn=row[0],
+                                    spec=row[1],
+                                    size=row[2],
+                                    stock=int(row[3]),
+                                    in_store=in_store,
+                                    warn_stock=warn_stock,
+                                    shelf_life=shelf_life,
+                                )
                             db.session.add(item)
                             try:
                                 db.session.commit()
@@ -150,6 +152,9 @@ def _import():
                                 db.session.rollback()
                 except IndexError:
                     flash("数据残缺！第1，2，3，4列必须有数据，且分别应该是pn，spec，size，stock")
+                
+                
+
                 flash(
                     "Inventory has been reset,if no error showed on this page,it success!"
                 )
@@ -228,7 +233,6 @@ def add_account():
     if current_user.role_id != 2:
         abort(403)
     form = SignIn()
-    print(request.form.to_dict())
     if form.validate_on_submit():
         role_id = 1
         if form.admin_or_not.data is True:

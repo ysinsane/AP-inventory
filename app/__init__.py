@@ -1,4 +1,4 @@
-#_*_coding:utf-8_*_
+﻿#_*_coding:utf-8_*_
 
 from flask import Flask, render_template
 from flask_mail import Mail
@@ -26,10 +26,11 @@ topbar = Navbar('',
 
 nav.register_element('top', topbar)
 
+
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])#这才真的把config类里的配置写入app
-    config[config_name].init_app(app)#没啥用，对齐格式的东西...
+    config[config_name].init_app(app)
     bootstrap.init_app(app)
     mail.init_app(app)
     moment.init_app(app)

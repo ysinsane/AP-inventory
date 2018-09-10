@@ -9,7 +9,7 @@ class Login(FlaskForm):
     submit = SubmitField('Login')
 
 class SearchForm(FlaskForm):
-    keyword = StringField('',render_kw={"placeholder":"搜索关键字(PN或Spec)",
+    keyword = StringField('',render_kw={"placeholder":"搜索关键字(PN,Spec,size)",
     "style":"margin:0px 10px 0px 15px;display:inline;color:blue; text-align:center; width:20%"})
     submit = SubmitField('Submit')
 
@@ -24,10 +24,13 @@ class LendForm(FlaskForm):
     qty = IntegerField('Keyword',render_kw={"placeholder":"数量","style": \
     "display:inline"})
     customer = StringField('customer', validators=[Required()],
-    render_kw={"placeholder":"客户名","style":"margin:0px 10px 0px 10px; \
-    display:inline;text-align:center"})
+    render_kw={"placeholder":"客户名","style": \
+    "display:inline;text-align:center"})
     lend_pic = StringField('lend_pic', validators=[Required()], \
-    render_kw={"placeholder":"借出PIC","style":"margin:0px 10px 0px 10px; \
+    render_kw={"placeholder":"借出PIC","style": \
+    "display:inline;text-align:center"})
+    days = IntegerField('days',validators=[Required()], \
+    render_kw={"placeholder":"借出天数","style":" \
     display:inline;text-align:center"})
     submit_take = SubmitField('lend')
     

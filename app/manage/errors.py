@@ -1,12 +1,16 @@
-from flask import render_template
+from flask import render_template, current_app
 from . import manage
+from sqlalchemy.exc import IntegrityError
 
 
-@manage.app_errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
-
-
-@manage.app_errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
+@manage.errorhandler(ValueError)
+def special_exception_handler(error):
+    current_app.logger.exception(error)
+    msg = traceback.format_exc()
+    return msg, 500
+	
+@manage.errorhandler(IntegrityError)
+def special_exception_handler(error):
+    current_app.logger.exception(error)
+    msg = traceback.format_exc()
+    return msg+'检查一下是不是有重复的PN没合并', 500

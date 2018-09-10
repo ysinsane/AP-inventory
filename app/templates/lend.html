@@ -2,6 +2,7 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block content %}
+{{super()}}
 <table class="table table-hover">
         <thead>
           <tr>
@@ -9,9 +10,10 @@
             <th>Spec</th>
             <th>Size</th>
             <th>Stock</th>
-            <th>QTY</th>
-            <th>借出PIC</th>
-            <th>客户名</th>
+            <th>&nbspQTY</th>
+            <th>&nbsp借出PIC</th>
+            <th>&nbsp客户名</th>
+            <th>&nbsp借出天数</th>
           </tr>
         </thead>
         <tbody>
@@ -25,6 +27,7 @@
                 <td>{{form.qty(class_="form-control")}}</td>
                 <td>{{form.lend_pic(class_="form-control")}}</td>
                 <td>{{form.customer(class_="form-control")}}</td>
+                <td>{{form.days(class_="form-control")}}</td>
                 <td>{{form.submit_take(class_="btn btn-default",type="submit")}}</td>
             </form>
           </tr>

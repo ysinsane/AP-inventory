@@ -18,6 +18,7 @@
             <th>客户</th>
             <th>借出PIC</th>
             <th>是否归还</th>
+            <th>归还倒计时</th>
           </tr>
         </thead>
         <tbody>
@@ -37,8 +38,9 @@
                 {%else%}非借用
                 {%endif%}
             </td> 
-            <td>{%if not record.returned and record.lend_pic%}<a href="{{url_for('.Return',id=record.id)}}">归还</a>{%endif%}</td>
-            
+            <td>{%if record.days%}{{record.days-(now-record.time).days}}天{%endif%}</td>
+            <td>{%if not record.returned and record.lend_pic%}<a href="{{url_for('.Return',id=record.id)}}" 
+			onclick="{if(confirm('确定归还吗?')){this.document.formname.submit();return true;}return false;}">归还</a>{%endif%}</td>
           </tr>
         {%endfor%}
         {%endif%}

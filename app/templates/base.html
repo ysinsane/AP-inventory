@@ -39,24 +39,23 @@ type="image/x-icon">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">Home</a>
+            <a class="navbar-brand" href="/">主页</a>
         </div>
         
         <ul class="nav navbar-nav navbar-right">
             {% if current_user.is_authenticated %}
-            <li><a href="{{ url_for('main.logout') }}"><strong>Sign Out</strong></a></li>
+            <li><a href="{{ url_for('main.logout') }}"><strong>登出</strong></a></li>
             {% else %}
-            <li><a href="{{ url_for('main.login') }}"><strong>Sign In</strong></a></li>
+            <li><a href="{{ url_for('main.login') }}"><strong>登陆</strong></a></li>
             {% endif %}
         </ul>
 
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="/record">Record</a></li>
-                <li><a href="/">Return</a></li>
+                <li><a href="/record">记录</a></li>
                 {%if current_user.role_id==2%}
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown">Manage
+                    <a class="dropdown-toggle" data-toggle="dropdown">管理
                         <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
@@ -73,6 +72,7 @@ type="image/x-icon">
                 </li>
                 {%endif%}
             </ul>
+			<p style="color:wheat; text-align:center">帐号密码都是admin</p>
         </div>
     </div>
 </div>
