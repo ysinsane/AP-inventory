@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField,IntegerField, BooleanField,TextAreaField
-from wtforms.validators import Required,NumberRange,Length
+from wtforms import StringField, SubmitField, PasswordField,IntegerField, BooleanField
+from wtforms.validators import Required,NumberRange,EqualTo
 
 class Login(FlaskForm):
     username = StringField('Username', validators=[Required()])
@@ -33,11 +33,11 @@ class LendForm(FlaskForm):
     render_kw={"placeholder":"借出天数","style":" \
     display:inline;text-align:center"})
     submit_take = SubmitField('lend')
-
-class EditProfileForm(FlaskForm):
-    name = StringField('Real name', validators=[Length(0, 64)])
-    location = StringField('Location', validators=[Length(0, 64)])
-    about_me = TextAreaField('About me')
-    submit = SubmitField('Submit')
     
-    
+class ProfileForm(FlaskForm):
+    password = PasswordField(
+        "New password",
+        validators=[Required(), EqualTo("password2", message="Passwords must match.")],
+    )
+    password2 = PasswordField("Confirm password", validators=[Required()])  
+    submit = SubmitField('修改')

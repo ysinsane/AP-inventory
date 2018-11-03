@@ -48,11 +48,10 @@ def mark():
             page, per_page=current_app.config["FLASKY_POSTS_PER_PAGE"], error_out=False
         )
     )
-    # print(request.form.to_dict())
+
     if request.method == "POST":
         if request.form.get("search") is not None:
             keyword = request.form.get("keyword")
-            print(keyword)
             pagination = (
                 Item.query.filter(
                     or_(
@@ -69,20 +68,15 @@ def mark():
                 )
             )
         if request.form.get("modify") is not None:
-            print("modify")
             form_data = request.form.to_dict()
             for v in form_data.keys():
                 if v.endswith("-check"):
-                    print(v)
                     pn = v[:-6]
                     item = Item.query.filter_by(pn=pn).first()
                     item.in_store = not item.in_store
                     db.session.add(item)
                     db.session.commit()
-                    print(item.spec + ":")
-                    print(item.in_store)
                 if v.endswith("-text"):
-                    print(bool(form_data[v]))
                     pn = v[:-5]
                     item = Item.query.filter_by(pn=pn).first()
                     warn_stock = form_data[v]
@@ -90,10 +84,8 @@ def mark():
                         item.warn_stock = int(form_data[v])
                         db.session.add(item)
                         db.session.commit()
-                        print(pn + " now is:" + form_data[v])
     args = {"keyword": keyword}
     items = pagination.items
-    print(len(items))
     return render_template(
         "manage/mark.html", pagination=pagination, items=items, args=args
     )
@@ -108,8 +100,6 @@ def _import():
     if request.method == "POST":
         if request.files["file"]:
             file_name = os.path.join(basedir, "temp", request.files["file"].filename)
-            if not os.path.exists(os.path.dirname(file_name)):
-                os.mkdir(os.path.dirname(file_name))
             request.files["file"].save(file_name)
             Item.query.delete()
             with open(file_name, "r", encoding="utf-8") as f:
@@ -122,7 +112,7 @@ def _import():
                             and row[0] != "pn"
                             and row[1] != ""
                             and row[2] != ""
-                            and row[3].isdigit()
+                            and row[3] != ""
                         ):
                             item=Item.query.filter_by(pn=row[0]).first()
                             if item:
@@ -133,7 +123,7 @@ def _import():
                                 in_store = False
                                 if len(row) > 4:
                                     in_store = row[4] == "TRUE"
-                                if len(row) > 5 and row[5].isdigit():
+                                if len(row) > 5 and row[5] !='':
                                     warn_stock = int(row[5])
                                 if len(row) > 6 and row[6] !='':
                                     shelf_life = datetime.strptime(row[6], "%Y-%m-%d")
@@ -154,6 +144,9 @@ def _import():
                                 db.session.rollback()
                 except IndexError:
                     flash("数据残缺！第1，2，3，4列必须有数据，且分别应该是pn，spec，size，stock")
+                
+                
+
                 flash(
                     "Inventory has been reset,if no error showed on this page,it success!"
                 )
@@ -242,11 +235,10 @@ def add_account():
         db.session.add(u)
         try:
             db.session.commit()
-        except IntegrityError as e:
+            flash("成功添加用户：{0}".format(form.username.data))
+        except BaseException:
             db.session.rollback()
-            raise e
-        
-        flash("成功添加用户：{0}".format(form.username.data))
+            flash('注册失败，信息可能与现有的冲突或者不符合规则！')
     return render_template("/manage/add_account.html", form=form)
 
 
@@ -291,7 +283,7 @@ def index():
 
 @manage.route("/buy/<pn>", methods=["GET", "POST"])
 @login_required
-def buy(pn):
+def buy(pn):#管理里，补充数量
     if current_user.role_id != 2:
         abort(403)
     form = BuyForm()
@@ -300,7 +292,10 @@ def buy(pn):
     if form.validate_on_submit():
         item.stock += form.qty.data
         db.session.add(item)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
 
         r = Record(
             pn=item.pn,
@@ -314,7 +309,10 @@ def buy(pn):
         )
 
         db.session.add(r)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
         return redirect(url_for("main.record"))
     return render_template("/manage/buy.html", form=form, item=item)
 
@@ -349,8 +347,6 @@ def add():
     items = Item.query.order_by(Item.id.desc()).limit(6)
     if form.validate_on_submit():
         shelf_life = datetime.strptime(form.shelf_life.data, "%Y-%m-%d")
-        print(shelf_life)
-        print(form.in_store.data)
         i = Item(
             pn=form.pn.data,
             spec=form.spec.data,
@@ -361,8 +357,27 @@ def add():
             shelf_life=shelf_life,
         )
         db.session.add(i)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            flash('信息填写有错误,比如:PN已经存在了。请检查!')
         items = Item.query.order_by(Item.id.desc()).limit(6)
+        r = Record(
+            pn=i.pn,
+            spec=i.spec,
+            size=i.size,
+            qty=i.stock,
+            customer="新品入库",
+            ap_pic=current_user.username,
+            returned=False,
+            time=datetime.utcnow(),
+        )
+        db.session.add(r)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
     return render_template("/manage/add_item.html", form=form, items=items)
 
 

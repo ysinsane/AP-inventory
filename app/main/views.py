@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask import flash, redirect, render_template, url_for, current_app, request,session
 
-from .forms import Login, SearchForm, TakeForm, LendForm
+from .forms import Login, SearchForm, TakeForm, LendForm, ProfileForm
 from ..manage.forms import SignIn
 from . import main
 from .. import db, mail
@@ -31,29 +31,39 @@ def login():
             flash("No such user!")
     return render_template("login.html", name=name, form=form)
 
+    
+@main.route("/profile/<id>", methods=["GET", "POST"])
+def profile(id):
+    form = ProfileForm()
+    if form.validate_on_submit():
+        current_user.password=form.password.data
+        db.session.add(current_user)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        else:
+            flash('密码已经修改，请记好!')
+    return render_template('profile.html',form=form)
 
-""" @main.route("/sign_in", methods=["GET", "POST"])
+@main.route("/sign_in", methods=["GET", "POST"])
 def sign_in():
     form = SignIn()
     if form.validate_on_submit() and form.email.data.endswith('@discosha.com'):
         userinfo=[form.username.data,
         form.password.data,
         form.email.data]
-        if User.query.filter_by(email=form.email.data).first() is not None:
-            flash('这个邮箱已经被注册过了')
-            return render_template('sign_in.html',form=form)
-        s = Serializer(current_app.config['SECRET_KEY'], expires_in = 3600)
+        s = Serializer(current_app.config['SECRET_KEY'], expires_in = 60)
         session['serializer']=True
         token = s.dumps(userinfo)
         msg = Message(subject='确认账户',
-              recipients=["eason_yan@discosha.com"])
-        msg.body = '亲爱的管理员，有用户正在注册账户。用户名:{0} 邮箱地址:{1}。确认注册请点击链接'.format(userinfo[0],userinfo[1]) \
-        +url_for('.confirm',token=token,_external=True)
+              recipients=[form.email.data])
+        msg.body = url_for('.confirm',token=token,_external=True)
         mail.send(msg)
         return '申请提交成功，我们给您发送了一封邮件来确认账户，请检查自己邮箱完成账号注册，有效期1小时。'
     return render_template('sign_in.html',form=form)
-  """
-""" @main.route("/confirm/<token>", methods=["GET", "POST"])
+ 
+@main.route("/confirm/<token>", methods=["GET", "POST"])
 def confirm(token):
     if session['serializer']:
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -75,7 +85,7 @@ def confirm(token):
         return redirect(url_for('.login'))
     flash('请勿重复提交，先注册再从邮件确认！')    
     return redirect(url_for('.sign_in'))
- """
+
 @main.route("/logout")
 @login_required
 def logout():
@@ -137,7 +147,10 @@ def item(pn):
         else:
             item.stock -= form.qty.data
             db.session.add(item)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
 
             r = Record(
                 pn=item.pn,
@@ -151,7 +164,10 @@ def item(pn):
             )
 
             db.session.add(r)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
             return redirect(url_for(".record"))
     return render_template("item.html", form=form, item=item)
 
@@ -159,12 +175,17 @@ def item(pn):
 @main.route("/record", methods=["GET", "POST"])
 def record():
     form = SearchForm()
+    now = datetime.utcnow()
+    order_by = request.args.get('order_by','time')
+    if order_by=='time':
+        criteria=[Record.time.desc()]
+    elif order_by=='days':
+        criteria=[Record.lend_pic.desc(),Record.returned.desc()]
     page = request.args.get("page", 1, type=int)
-    pagination = Record.query.order_by(Record.time.desc()).paginate(
+    pagination = Record.query.order_by(*criteria).paginate(
         page, per_page=current_app.config["FLASKY_POSTS_PER_PAGE"], error_out=False
     )
     records = pagination.items
-    now = datetime.utcnow()
     if request.method == "POST":
         keyword = request.form.to_dict()["keyword"]
 
@@ -190,7 +211,7 @@ def record():
         records = pagination.items
     return render_template(
         "record.html", form=form, records=records, pagination=pagination,
-        now = now
+        now = now, order_by=order_by
     )
 
 
@@ -221,7 +242,10 @@ def lend(pn):
             item.stock-=request.form.get('qty',type=int)
             db.session.add(r)
             db.session.add(item)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
             return redirect(url_for(".record"))
     return render_template("lend.html", form=form, item=item)
 
@@ -234,30 +258,8 @@ def Return(id):
     i = Item.query.filter_by(pn=r.pn).first()
     i.stock += int(r.qty)
     db.session.add(i)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
     return redirect(url_for(".record"))
-
-
-@main.route('/user/<username>')
-def user(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        abort(404)
-    return render_template('user.html', user=user)
-
-
-@main.route('/edit-profile', methods=['GET', 'POST'])
-@login_required
-def edit_profile():
-    form = EditProfileForm()
-    if form.validate_on_submit():
-        current_user.name = form.name.data
-        current_user.location = form.location.data
-        current_user.about_me = form.about_me.data
-        db.session.add(current_user)
-        flash('Your profile has been updated.')
-        return redirect(url_for('.user', username=current_user.username))
-    form.name.data = current_user.name
-    form.location.data = current_user.location
-    form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html', form=form)

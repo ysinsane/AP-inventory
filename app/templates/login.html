@@ -7,8 +7,11 @@
 {{super()}}
 <div class="container">
     <div class="page-header">
-        <h1 style="text-align: center">帐户名是自己英文名，大写首字母</h1>
+        <h1 style="text-align: center">Hello, {{ name }}!</h1>
     </div>
 </div>
 {{wtf.quick_form(form,form_type="horizontal",horizontal_columns=('lg',5,3))}}
+<div style="text-align:center">
+<a href="{{url_for('.sign_in')}}">没有账号?点这里注册!</a>
+<div>
 {% endblock %}

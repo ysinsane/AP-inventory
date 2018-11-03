@@ -44,11 +44,7 @@ type="image/x-icon">
         
         <ul class="nav navbar-nav navbar-right">
             {% if current_user.is_authenticated %}
-            <li>
-            <a href="{{ url_for('main.user', username=current_user.username) }}">
-            资料
-            </a>
-            </li>
+            <li><a href="{{ url_for('main.profile',id=current_user.id) }}"><strong>修改密码</strong></a></li>
             {% endif %}
             {% if current_user.is_authenticated %}
             <li><a href="{{ url_for('main.logout') }}"><strong>登出</strong></a></li>
@@ -79,7 +75,7 @@ type="image/x-icon">
                 </li>
                 {%endif%}
             </ul>
-			<p style="color:wheat; text-align:center">帐号密码都是admin</p>
+			<p style="color:#004141; text-align:center">如果发现任何问题，以及有任何bug，请联系eason_yan@discosha.com</p>
         </div>
     </div>
 </div>
