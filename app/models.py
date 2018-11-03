@@ -8,17 +8,58 @@ from datetime import datetime
 from flask_login import UserMixin
 from . import login_manager
 
+class Permission:
+    STRANGER = 1
+    FOREIGN_USER = 2
+    USER = 4
+    ADMIN = 8
+    
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     users = db.relationship('User', backref='role')
 
+    def __init__(self, **kwargs):
+        super(Role, self).__init__(**kwargs)
+        if self.permissions is None:
+            self.permissions = 0
+        roles = {
+            'FOREIGN_USER': [Permission.STRANGER, Permission.FOREIGN_USER],
+            'USER': [Permission.STRANGER, Permission.FOREIGN_USER,
+                          Permission.USER],
+            'Administrator': [Permission.STRANGER, Permission.FOREIGN_USER,
+                              Permission.USER, Permission.ADMIN]
+        }
+        for r in roles:
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+                role = Role(name=r)
+            role.reset_permissions()
+            for perm in roles[r]:
+                role.add_permission(perm)
+            db.session.add(role)
+        db.session.commit()
+
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+    
+    def remove_permission(self, perm):
+        if self.has_permission(perm):
+            self.permissions -= perm
+
+    def reset_permissions(self):
+        self.permissions = 0
+
+    def has_permission(self, perm):
+        return self.permissions & perm == perm
     def __repr__(self):
         return '<Role %r>' % self.name
 
     @staticmethod
     def insert_roles():
+        foreign_user=Role(name='foreign_user')
         user=Role(name='user')
         admin=Role(name='admin')
         db.session.add(user)
@@ -56,8 +97,8 @@ class User(UserMixin, db.Model):
             self.role = Role.query.first()
         else:
             self.role= Role.query.filter_by(id=self.role_id).first()
-        db.session.add(self)
-        db.session.commit()
+        '''db.session.add(self)
+        db.session.commit()'''
     
 class Item(db.Model):
     __tablename__="items"

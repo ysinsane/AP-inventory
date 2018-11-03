@@ -122,7 +122,7 @@ def _import():
                             and row[0] != "pn"
                             and row[1] != ""
                             and row[2] != ""
-                            and row[3] != ""
+                            and row[3].isdigit()
                         ):
                             item=Item.query.filter_by(pn=row[0]).first()
                             if item:
@@ -133,9 +133,9 @@ def _import():
                                 in_store = False
                                 if len(row) > 4:
                                     in_store = row[4] == "TRUE"
-                                if len(row) > 5 and row[5] !='':
+                                if len(row) > 5 and row[5].isdigit():
                                     warn_stock = int(row[5])
-                                if len(row) > 6:
+                                if len(row) > 6 and row[6] !='':
                                     shelf_life = datetime.strptime(row[6], "%Y-%m-%d")
                                 item = Item(
                                     pn=row[0],
@@ -154,9 +154,6 @@ def _import():
                                 db.session.rollback()
                 except IndexError:
                     flash("数据残缺！第1，2，3，4列必须有数据，且分别应该是pn，spec，size，stock")
-                
-                
-
                 flash(
                     "Inventory has been reset,if no error showed on this page,it success!"
                 )
@@ -243,7 +240,12 @@ def add_account():
             username=form.username.data, password=form.password.data, role_id=role_id
         )
         db.session.add(u)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except IntegrityError as e:
+            db.session.rollback()
+            raise e
+        
         flash("成功添加用户：{0}".format(form.username.data))
     return render_template("/manage/add_account.html", form=form)
 
