@@ -20,7 +20,7 @@
             <td>{{item.spec}}</td>
             <td>{{item.size}}</td>
             <td>{{item.stock}}</td>
-            <td><a class="btn btn-warning" href="{{url_for('.lend',pn=item.pn)}}">借刀点我</a></td>
+            {%if current_user.can(Permission.BORROW)%}<td><a class="btn btn-warning" href="{{url_for('.lend',pn=item.pn)}}">借刀点我</a></td>{%endif%}
           </tr>
         {%endif%}
         </tbody>

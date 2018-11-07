@@ -10,7 +10,10 @@
         <th>ID</th>
         <th>用户名</th>
         <td>角色</td>
-        <th></th>
+        <td>Email</td>
+        <td>Last seen</td>
+        <td>Member since</td>
+        <th>Operation</th>
       </tr>
     </thead>
     <tbody>
@@ -20,6 +23,9 @@
         <td>{{user.id}}</td>
         <td>{{user.username}}</td>
         <td>{{user.role}}</td>
+        <td>{{user.email}}</td>
+        <td>{{moment(user.last_seen).format('LLLL')}}</td>
+        <td>{{moment(user.member_since).format('LLLL')}}</td>
         <td><a class="btn btn-warning" href="{{url_for('.delete_user',id=user.id)}}">删除</a></td>
       </tr>
     {%endfor%}

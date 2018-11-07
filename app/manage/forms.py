@@ -10,26 +10,15 @@ from wtforms import (
 from wtforms.validators import Required, Email, Length, EqualTo, Regexp, NumberRange
 
 
-class SignIn(FlaskForm):
-    username = StringField(
-        "Username",
-        validators=[
-            Required(),
-            Length(1, 64),
-            Regexp(
-                "^[A-Za-z][A-Za-z0-9_.]*$",
-                0,
-                "Usernames must have only letters, numbers, dots or underscores",
-            ),
-        ],
-    )
+class SignIn(FlaskForm):#register a new account
     email = StringField("Email", validators=[Email()])
     password = PasswordField(
         "Password",
         validators=[Required(), EqualTo("password2", message="Passwords must match.")],
     )
     password2 = PasswordField("Confirm password", validators=[Required()])
-    admin_or_not = BooleanField("if admin, check this")
+    role = RadioField('Role', choices=[('Checker', 'Primary'), ('User', 'AP member'), \
+    ('Borrower', 'AP borrower'),('Asist','Admin')],validators=[Required()])
     submit = SubmitField("注册")
 
 

@@ -5,25 +5,43 @@ from sqlalchemy.exc import IntegrityError
 from random import seed
 import forgery_py,random
 from datetime import datetime
-from flask_login import UserMixin
+from flask_login import UserMixin,AnonymousUserMixin
 from . import login_manager
-from flask import flash
+from flask import flash,current_app
+
+class Permission:
+    CHECK = 0x01 #Can only see specific blade is available or not
+    TAKE = 0x02 #Can see all items and their amount, and take the blade
+    BORROW = 0x04 #Can borrow the blade out
+    ASIST = 0x08 #Can create new items, delete items... in a word, can do everything.
+    ADMINISTER = 0x80 # reserved for further needs.
 
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     users = db.relationship('User', backref='role')
+    default = db.Column(db.Boolean, default=False, index=True)
+    permissions = db.Column(db.Integer)
 
     def __repr__(self):
         return '<Role %r>' % self.name
 
     @staticmethod
     def insert_roles():
-        user=Role(name='user')
-        admin=Role(name='admin')
-        db.session.add(user)
-        db.session.add(admin)
+        roles = {
+        'Checker': (Permission.CHECK, True),
+        'User': (Permission.CHECK|Permission.TAKE, False),
+        'Borrower':(Permission.CHECK|Permission.TAKE|Permission.BORROW,False),
+        'Asist': (Permission.CHECK|Permission.TAKE|Permission.BORROW|Permission.ASIST, False)
+        }
+        for r in roles:
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+                role = Role(name=r)
+            role.permissions = roles[r][0]
+            role.default = roles[r][1]
+            db.session.add(role)
         db.session.commit()
 
 class User(UserMixin, db.Model):
@@ -33,9 +51,19 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
+    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+    member_since = db.Column(db.DateTime(), default=datetime.utcnow)
+
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')
+
+    def can(self, permissions):
+        return self.role is not None and \
+        (self.role.permissions & permissions) == permissions
+
+    def is_administrator(self):
+        return self.can(Permission.ADMINISTER)
 
     @password.setter
     def password(self, password):
@@ -51,18 +79,24 @@ class User(UserMixin, db.Model):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        db.session.add(self)
+
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        if self.role_id is None:
-            self.role = Role.query.first()
-        else:
-            self.role= Role.query.filter_by(id=self.role_id).first()
-        '''db.session.add(self)
-        try:
-            db.session.commit()
-            flash('models commit')
-        except:
-            db.session.rollback()'''
+        if self.role is None:
+            if self.email == current_app.config['AP_ADMIN']:
+                self.role = Role.query.filter_by(permissions=0xF).first()
+            if self.role is None:
+                self.role = Role.query.filter_by(default=True).first()
+
+class AnonymousUser(AnonymousUserMixin):
+    def can(self, permissions):
+        return False
+    def is_administrator(self):
+        return False
+login_manager.anonymous_user = AnonymousUser
     
 class Item(db.Model):
     __tablename__="items"
@@ -112,4 +146,10 @@ class Record(db.Model):
     lend_pic = db.Column(db.String)
     days = db.Column(db.Integer)
     returned = db.Column(db.Boolean,default=False)
- 
+    
+    def __str__(self):
+        return '<class Record> PN:{0} Spec:{1} Size:{2} QTY:{3} \
+        Date:{4} Customer:{5}'.format(self.pn,self.spec,
+        self.size,self.qty,self.time,self.customer)
+        
+    __repr__=__str__

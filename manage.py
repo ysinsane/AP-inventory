@@ -43,7 +43,7 @@ def deploy():
         u=User(username=os.environ['ADMIN_NAME'],
         password=os.environ['ADMIN_PASS'],
         email=os.environ['AP_ADMIN'],
-        role_id=2)
+        role=Role.query.filter_by(name='Asist').first())
         db.session.add(u)
         db.session.commit()
 

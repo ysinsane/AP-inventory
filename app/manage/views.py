@@ -21,18 +21,18 @@ from .forms import SignIn, ItemForm, SearchForm, BuyForm, ExportForm
 
 from . import manage
 from .. import db
-from ..models import User, Item, Record
+from ..models import User, Item, Record,Role
 
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from flask_login import login_required, current_user
+from ..decorators import admin_required, permission_required
 
 
 @manage.route("/mark", methods=["GET", "POST"])
 @login_required
+@admin_required
 def mark():
-    if current_user.role_id != 2:
-        abort(403)
     keyword = request.args.get("keyword", "")
     page = request.args.get("page", 1, type=int)
     pagination = (
@@ -93,10 +93,9 @@ def mark():
 
 @manage.route("/_import", methods=["GET", "POST"])
 @login_required
+@admin_required
 def _import():
     fails = []
-    if current_user.role_id != 2:
-        abort(403)
     if request.method == "POST":
         if request.files["file"]:
             file_name = os.path.join(basedir, "temp", request.files["file"].filename)
@@ -157,6 +156,7 @@ def _import():
 
 @manage.route("/export", methods=["GET", "POST"])
 @login_required
+@admin_required
 def export():
     form = ExportForm()
     if form.validate_on_submit():
@@ -221,21 +221,19 @@ def export():
 
 
 @manage.route("/add_account", methods=["GET", "POST"])
+@login_required
+@admin_required
 def add_account():
-    if current_user.role_id != 2:
-        abort(403)
     form = SignIn()
     if form.validate_on_submit():
-        role_id = 1
-        if form.admin_or_not.data is True:
-            role_id = 2
+        emailname=form.email.data[:form.email.data.index('@')]
         u = User(
-            username=form.username.data, password=form.password.data, role_id=role_id
-        )
+        username=emailname, password=form.password.data,email=form.email.data,
+        role=Role.query.filter_by(name=form.role.data).first())
         db.session.add(u)
         try:
             db.session.commit()
-            flash("成功添加用户：{0}".format(form.username.data))
+            flash("成功添加用户：{0}".format(emailname))
         except BaseException:
             db.session.rollback()
             flash('注册失败，信息可能与现有的冲突或者不符合规则！')
@@ -244,9 +242,8 @@ def add_account():
 
 @manage.route("/index", methods=["GET", "POST"])
 @login_required
+@admin_required
 def index():
-    if current_user.role_id != 2:
-        abort(403)
     form = SearchForm()
     page = request.args.get("page", 1, type=int)
     pagination = Item.query.order_by(
@@ -283,9 +280,8 @@ def index():
 
 @manage.route("/buy/<pn>", methods=["GET", "POST"])
 @login_required
+@admin_required
 def buy(pn):#管理里，补充数量
-    if current_user.role_id != 2:
-        abort(403)
     form = BuyForm()
     item = Item.query.filter_by(pn=pn).first()
 
@@ -319,18 +315,16 @@ def buy(pn):#管理里，补充数量
 
 @manage.route("/account", methods=["GET", "POST"])
 @login_required
+@admin_required
 def account():
-    if current_user.role_id != 2:
-        abort(403)
     users = User.query.all()
     return render_template("/manage/account.html", users=users)
 
 
 @manage.route("/delete_user/<id>", methods=["GET"])
 @login_required
+@admin_required
 def delete_user(id):
-    if current_user.role_id != 2:
-        abort(403)
     if int(id) != current_user.id:
         user = User.query.filter_by(id=id).first()
         db.session.delete(user)
@@ -342,6 +336,7 @@ def delete_user(id):
 
 @manage.route("/add", methods=["GET", "POST"])
 @login_required
+@admin_required
 def add():
     form = ItemForm()
     items = Item.query.order_by(Item.id.desc()).limit(6)
@@ -383,6 +378,7 @@ def add():
 
 @manage.route("/delete_item/<id>", methods=["GET"])
 @login_required
+@admin_required
 def delete_item(id):
     i = Item.query.get_or_404(id)
     db.session.delete(i)

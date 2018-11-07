@@ -14,6 +14,9 @@ from sqlalchemy import or_, and_
 from flask_login import login_user, login_required, logout_user, current_user
 
 from flask_mail import Message
+from sqlite3 import IntegrityError
+from ..decorators import admin_required, permission_required
+from ..models import Permission
 
 @main.route("/login", methods=["GET", "POST"])
 def login():
@@ -31,7 +34,11 @@ def login():
             flash("No such user!")
     return render_template("login.html", name=name, form=form)
 
-    
+@main.before_app_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.ping()
+
 @main.route("/profile/<id>", methods=["GET", "POST"])
 def profile(id):
     form = ProfileForm()
@@ -135,6 +142,7 @@ def index():
 
 @main.route("/item/<pn>", methods=["GET", "POST"])
 @login_required
+@permission_required(Permission.TAKE)
 def item(pn):
     form = TakeForm()
     item = Item.query.filter_by(pn=pn).first()
@@ -173,6 +181,7 @@ def item(pn):
 
 
 @main.route("/record", methods=["GET", "POST"])
+@permission_required(Permission.TAKE)
 def record():
     form = SearchForm()
     now = datetime.utcnow()
@@ -216,6 +225,7 @@ def record():
 
 
 @main.route("/lend/<pn>", methods=["GET", "POST"])
+@permission_required(Permission.BORROW)
 def lend(pn):
     form = LendForm()
     item = Item.query.filter_by(pn=pn).first()
@@ -251,6 +261,7 @@ def lend(pn):
 
 
 @main.route("/return/<id>")
+@permission_required(Permission.BORROW)
 def Return(id):
     r = Record.query.filter_by(id=id).first()
     r.returned = True

@@ -16,8 +16,10 @@
             <th>Spec</th>
             <td><strong>Size</strong></td>
             <th>Stock</th>
+            {%if current_user.can(Permission.TAKE)%}
             <th>报警限</th>
             <th>是否备库</th>
+            {%endif%}
             <th>过期时间</th>
           </tr>
         </thead>
@@ -26,17 +28,25 @@
         {%for item in items%}
           <tr> 
             {%if item.stock>0%} 
-            <td><a href="{{url_for('.item',pn=item.pn)}}">{{item.pn}}</a></td>
+            <td>{%if current_user.can(Permission.TAKE)%}<a href="{{url_for('.item',pn=item.pn)}}">{%endif%}{{item.pn}}</a></td>
             {%else%}
             <td>{{item.pn}}</td>
             {%endif%}
             <td>{{item.spec}}</td>
             <td>{{item.size}}</td>
-            <td {%if item.stock<item.warn_stock and item.in_store%}
+            {%if current_user.can(Permission.TAKE)%}
+              <td {%if item.stock<item.warn_stock and item.in_store%}
+              style="color: red"
+              {%endif%}>{{item.stock}}</td>
+            {%else%}
+            <td{%if item.stock<1%}
             style="color: red"
-            {%endif%}>{{item.stock}}</td>
+            {%endif%}>{%if item.stock>0%}有货{%else%}无货{%endif%}</td>
+            {%endif%}
+            {%if current_user.can(Permission.TAKE)%}
             <td>{%if item.in_store%}{{item.warn_stock}}{%else%}-{%endif%}</td>
             <td>{% if item.in_store %}是{% else %}否{% endif %}</td>
+            {%endif%}
             <td>{%if item.shelf_life%}{{moment(item.shelf_life).format('LL')}}{%else%}未录入{%endif%}</td>
           </tr>
         {%endfor%}

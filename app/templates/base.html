@@ -55,8 +55,10 @@ type="image/x-icon">
 
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
+                {%if current_user.can(Permission.TAKE)%}
                 <li><a href="/record">记录</a></li>
-                {%if current_user.role_id==2%}
+                {% endif %}
+                {%if current_user.can(Permission.ASIST)%}
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown">管理
                         <b class="caret"></b>
