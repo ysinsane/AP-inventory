@@ -1,6 +1,6 @@
 # _*_coding:utf-8_*_
 
-import os
+import os, logging
 
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell
@@ -50,3 +50,8 @@ def deploy():
 
 if __name__ == "__main__":
     manager.run()
+
+else:
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
