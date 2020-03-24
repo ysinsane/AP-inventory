@@ -121,11 +121,14 @@ def _import():
                                 shelf_life = None
                                 in_store = False
                                 if len(row) > 4:
-                                    in_store = row[4] == "TRUE"
+                                    in_store = row[4].lower() == "true"
                                 if len(row) > 5 and row[5] !='':
                                     warn_stock = int(row[5])
                                 if len(row) > 6 and row[6] !='':
-                                    shelf_life = datetime.strptime(row[6], "%Y-%m-%d")
+                                    try:
+                                        shelf_life = datetime.strptime(row[6], "%Y-%m-%d")
+                                    except:
+                                        shelf_life = datetime.strptime(row[6], "%Y/%m/%d")
                                 item = Item(
                                     pn=row[0],
                                     spec=row[1],
